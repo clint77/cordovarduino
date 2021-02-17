@@ -13,7 +13,7 @@ import android.util.Log;
  * Custom {@link BroadcastReceiver} that can talk through a cordova {@link CallbackContext}
  * @author Xavier Seignard <xavier.seignard@gmail.com>
  */
-public class UsbBroadcastReceiver extends BroadcastReceiver {
+public class UsbBroadcastReceiverAndroid extends BroadcastReceiver {
 	// logging tag
 	private final String TAG = UsbBroadcastReceiver.class.getSimpleName();
 	// usb permission tag name
@@ -28,7 +28,7 @@ public class UsbBroadcastReceiver extends BroadcastReceiver {
 	 * @param callbackContext
 	 * @param activity
 	 */
-	public UsbBroadcastReceiver(CallbackContext callbackContext, Activity activity) {
+	public UsbBroadcastReceiverAndroid(CallbackContext callbackContext, Activity activity) {
 		this.callbackContext = callbackContext;
 		this.activity = activity;
 	}

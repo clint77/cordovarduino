@@ -39,9 +39,9 @@ import android.util.Log;
  * Cordova plugin to communicate with the android serial port
  * @author Xavier Seignard <xavier.seignard@gmail.com>
  */
-public class Serial extends CordovaPlugin {
+public class SerialAndroid extends CordovaPlugin {
 	// logging tag
-	private final String TAG = Serial.class.getSimpleName();
+	private final String TAG = SerialAndroid.class.getSimpleName();
 	// actions definitions
 	private static final String ACTION_REQUEST_PERMISSION = "requestPermission";
 	private static final String ACTION_OPEN = "openSerial";
@@ -84,7 +84,7 @@ public class Serial extends CordovaPlugin {
 				}
 				@Override
 				public void onNewData(final byte[] data) {
-					Serial.this.updateReceivedData(data);
+					SerialAndroid.this.updateReceivedData(data);
 				}
 			};
 
@@ -197,12 +197,12 @@ public class Serial extends CordovaPlugin {
 					driver = availableDrivers.get(0);
 					UsbDevice device = driver.getDevice();
 					// create the intent that will be used to get the permission
-					PendingIntent pendingIntent = PendingIntent.getBroadcast(cordova.getActivity(), 0, new Intent(UsbBroadcastReceiver.USB_PERMISSION), 0);
+					PendingIntent pendingIntent = PendingIntent.getBroadcast(cordova.getActivity(), 0, new Intent(UsbBroadcastReceiverAndroid.USB_PERMISSION), 0);
 					// and a filter on the permission we ask
 					IntentFilter filter = new IntentFilter();
-					filter.addAction(UsbBroadcastReceiver.USB_PERMISSION);
+					filter.addAction(UsbBroadcastReceiverAndroid.USB_PERMISSION);
 					// this broadcast receiver will handle the permission results
-					UsbBroadcastReceiver usbReceiver = new UsbBroadcastReceiver(callbackContext, cordova.getActivity());
+					UsbBroadcastReceiverAndroid usbReceiver = new UsbBroadcastReceiverAndroid(callbackContext, cordova.getActivity());
 					cordova.getActivity().registerReceiver(usbReceiver, filter);
 					// finally ask for the permission
 					manager.requestPermission(device, pendingIntent);
