@@ -58,13 +58,13 @@ var serial = {
             []
         );
     },
-    registerReadCallback: function(successCallback, errorCallback) {
+    registerReadCallback: function (opts, successCallback, errorCallback) {
         cordova.exec(
             successCallback,
             errorCallback,
             'Serial',
             'registerReadCallback',
-            []
+            [{ 'opts': opts }]
         );
     }
 
