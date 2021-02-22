@@ -9,7 +9,7 @@
     <keywords>serial,arduino</keywords>
 
     <!-- js module -->
-    <js-module src="www/serial.js" name="SerialAndroid">
+    <js-module src="www/serialandroid.js" name="SerialAndroid">
         <clobbers target="window.serialandroid" />
     </js-module>
 
@@ -17,12 +17,13 @@
     <platform name="android">
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="SerialAndroid">
-                <param name="android-package" value="fr.drangies.cordova.serial.Serial"/>
+                <param name="android-package" value="fr.drangies.cordova.serialandroid.SerialAndroid"/>
             </feature>
         </config-file>
-        <source-file src="src/android/fr/drangies/cordova/serial/SerialAndroid.java" target-dir="src/fr/drangies/cordova/serial" />
-        <source-file src="src/android/fr/drangies/cordova/serial/UsbBroadcastReceiverAndroid.java" target-dir="src/fr/drangies/cordova/serial" />
+        <source-file src="src/android/fr/drangies/cordova/serialandroid/SerialAndroid.java" target-dir="src/fr/drangies/cordova/serialandroid" />
+        <source-file src="src/android/fr/drangies/cordova/serialandroid/UsbBroadcastReceiverAndroid.java" target-dir="src/fr/drangies/cordova/serialandroid" />
         <lib-file src="lib/usbseriallibrary.jar" arch="device" />
+        <lib-file src="lib/d2xx.jar" arch="device" />
     </platform>
 
     <!-- ubuntu -->

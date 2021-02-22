@@ -1,4 +1,4 @@
-package fr.drangies.cordova.serial;
+package fr.drangies.cordova.serialandroid;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -109,6 +109,7 @@ public class SerialAndroid extends CordovaPlugin {
 		@Override
 		public void onNewData(final byte[] data) {
 			SerialAndroid.this.updateReceivedData(data);
+			Log.d(TAG, "set mListener");
 		}
 	};
 
@@ -117,10 +118,11 @@ public class SerialAndroid extends CordovaPlugin {
 		public void onRunError(Exception e) {
 			Log.d(TAG, "Runner stopped.");
 		}
-
+		
 		@Override
 		public void onNewData(final byte[] data) {
 			SerialAndroid.this.updateReceivedDataFM1(data);
+			Log.d(TAG, "set pListener");
 		}
 	};
 
@@ -289,23 +291,25 @@ public class SerialAndroid extends CordovaPlugin {
 					callbackContext.error(e.getMessage());
 				}
 
-				UsbSerialDriver targetUsbDriver = null;
+				UsbSerialDriver driverTest = null;
 				List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
 
-				for (UsbSerialDriver usbDriver : availableDrivers) {
-					UsbDevice usbdevice = usbDriver.getDevice();
-					Log.d(TAG, "Device " + usbdevice);
-					if (usbdevice.getProductId() == productId) {
-						targetUsbDriver = usbDriver;
-						Log.d(TAG, "Driver Test " + targetUsbDriver);
+				for (UsbSerialDriver usd : availableDrivers) {
+					UsbDevice udv = usd.getDevice();
+					Log.d(TAG, "Device " + udv);
+					if (udv.getProductId() == productId) {
+						driverTest = usd;
+						Log.d(TAG, "Driver Test " + driverTest);
 						break;
 					}
 				}
 
-				UsbDeviceConnection connection = manager.openDevice(targetUsbDriver.getDevice());
+				UsbDeviceConnection connection = manager.openDevice(driverTest.getDevice());
+				// UsbDeviceConnection connection = manager.openDevice(driver.getDevice());
 				if (connection != null) {
 					// get first port and open it
-					port = driver.getPorts().get(0);
+					port = driverTest.getPorts().get(0);
+
 					try {
 						// get connection params or the default values
 						baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
@@ -314,8 +318,11 @@ public class SerialAndroid extends CordovaPlugin {
 						parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
 						setDTR = opts.has("dtr") && opts.getBoolean("dtr");
 						setRTS = opts.has("rts") && opts.getBoolean("rts");
+
 						// Sleep On Pause defaults to true
-						sleepOnPause = opts.has("sleepOnPause") ? opts.getBoolean("sleepOnPause") : true;
+						sleepOnPause = opts.has("sleepOnPause") ? opts.getBoolean("sleepOnPause") : false;
+
+						// port = driverTest.getPorts().get(0);
 
 						port.open(connection);
 						port.setParameters(baudRate, dataBits, stopBits, parity);
@@ -332,14 +339,14 @@ public class SerialAndroid extends CordovaPlugin {
 						Log.d(TAG, e.getMessage());
 						callbackContext.error(e.getMessage());
 					}
-
-					Log.d(TAG, "Serial port opened!");
+					String str1 = "Serial port opened! " + driverTest.getPorts();
+					Log.d(TAG, str1);
 					callbackContext.success("Serial port opened!");
 				} else {
 					Log.d(TAG, "Cannot connect to the device!");
 					callbackContext.error("Cannot connect to the device!");
 				}
-				// onDeviceStateChange();
+				// onDeviceStateChange(); // NOTE: Replacing this with start io manager code
 				if (productId == 8963) {
 					Log.i(TAG, "Starting io manager. FM1 " + productId);
 					pSerialIoManager = new SerialInputOutputManager(port, pListener);
@@ -350,11 +357,89 @@ public class SerialAndroid extends CordovaPlugin {
 					mSerialIoManager = new SerialInputOutputManager(port, mListener);
 					mExecutor.submit(mSerialIoManager);
 				}
-				// getSomethingFromftD2xx();
-				Log.d(TAG, "serialOpen thread");
 			}
 		});
 	}
+
+
+	// private void openSerial(final JSONObject opts, final CallbackContext callbackContext) {
+	// 	cordova.getThreadPool().execute(new Runnable() {
+	// 		public void run() {
+	// 			try {
+	// 				productId = opts.has("pid") ? opts.getInt("pid") : 9999;
+	// 			} catch (JSONException e) {
+	// 				// deal with error
+	// 				Log.d(TAG, e.getMessage());
+	// 				callbackContext.error(e.getMessage());
+	// 			}
+
+	// 			UsbSerialDriver targetUsbDriver = null;
+	// 			List<UsbSerialDriver> availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager);
+
+	// 			for (UsbSerialDriver usbDriver : availableDrivers) {
+	// 				UsbDevice usbdevice = usbDriver.getDevice();
+	// 				Log.d(TAG, "Device " + usbdevice);
+	// 				if (usbdevice.getProductId() == productId) {
+	// 					targetUsbDriver = usbDriver;
+	// 					Log.d(TAG, "Driver Test " + targetUsbDriver);
+	// 					break;
+	// 				}
+	// 			}
+
+	// 			UsbDeviceConnection connection = manager.openDevice(targetUsbDriver.getDevice());
+	// 			if (connection != null) {
+	// 				// get first port and open it
+	// 				port = targetUsbDriver.getPorts().get(0);
+	// 				try {
+	// 					// get connection params or the default values
+	// 					baudRate = opts.has("baudRate") ? opts.getInt("baudRate") : 9600;
+	// 					dataBits = opts.has("dataBits") ? opts.getInt("dataBits") : UsbSerialPort.DATABITS_8;
+	// 					stopBits = opts.has("stopBits") ? opts.getInt("stopBits") : UsbSerialPort.STOPBITS_1;
+	// 					parity = opts.has("parity") ? opts.getInt("parity") : UsbSerialPort.PARITY_NONE;
+	// 					setDTR = opts.has("dtr") && opts.getBoolean("dtr");
+	// 					setRTS = opts.has("rts") && opts.getBoolean("rts");
+	// 					// Sleep On Pause defaults to true
+	// 					sleepOnPause = opts.has("sleepOnPause") ? opts.getBoolean("sleepOnPause") : false;
+
+	// 					port.open(connection);
+	// 					port.setParameters(baudRate, dataBits, stopBits, parity);
+	// 					if (setDTR)
+	// 						port.setDTR(true);
+	// 					if (setRTS)
+	// 						port.setRTS(true);
+	// 				} catch (IOException e) {
+	// 					// deal with error
+	// 					Log.d(TAG, e.getMessage());
+	// 					callbackContext.error(e.getMessage());
+	// 				} catch (JSONException e) {
+	// 					// deal with error
+	// 					Log.d(TAG, e.getMessage());
+	// 					callbackContext.error(e.getMessage());
+	// 				}
+
+	// 				Log.d(TAG, "Serial port opened!");
+	// 				callbackContext.success("Serial port opened!");
+	// 			} else {
+	// 				Log.d(TAG, "Cannot connect to the device!");
+	// 				callbackContext.error("Cannot connect to the device!");
+	// 			}
+	// 			// onDeviceStateChange();
+	// 			if (productId == 8963) {
+	// 				Log.i(TAG, "Starting io manager. FM1 I am here " + productId);
+	// 				Log.i(TAG, "I am here!");
+	// 				pSerialIoManager = new SerialInputOutputManager(port, pListener);
+	// 				pExecutor.submit(pSerialIoManager);
+
+	// 			} else {
+	// 				Log.i(TAG, "Starting io manager. Card Reader " + productId);
+	// 				mSerialIoManager = new SerialInputOutputManager(port, mListener);
+	// 				mExecutor.submit(mSerialIoManager);
+	// 			}
+	// 			// getSomethingFromftD2xx();
+	// 			Log.wtf(TAG, "serialOpen thread");
+	// 		}
+	// 	});
+	// }
 
 	/**
 	 * Write on the serial port

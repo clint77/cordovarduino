@@ -1,4 +1,4 @@
-package fr.drangies.cordova.serial;
+package fr.drangies.cordova.serialandroid;
 
 import org.apache.cordova.CallbackContext;
 
@@ -15,7 +15,7 @@ import android.util.Log;
  */
 public class UsbBroadcastReceiverAndroid extends BroadcastReceiver {
 	// logging tag
-	private final String TAG = UsbBroadcastReceiver.class.getSimpleName();
+	private final String TAG = UsbBroadcastReceiverAndroid.class.getSimpleName();
 	// usb permission tag name
 	public static final String USB_PERMISSION ="fr.drangies.cordova.serial.USB_PERMISSION";
 	// cordova callback context to notify the success/error to the cordova app
